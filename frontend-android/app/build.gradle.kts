@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.wayads.mobile_app"
+    namespace = "com.wayads.app"
     compileSdk = 36
 
     defaultConfig {
@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime.saved.instance.state)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

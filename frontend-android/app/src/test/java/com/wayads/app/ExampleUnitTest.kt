@@ -1,4 +1,4 @@
-package com.wayads.mobile_app
+package com.wayads.app
 
 import org.junit.Test
 

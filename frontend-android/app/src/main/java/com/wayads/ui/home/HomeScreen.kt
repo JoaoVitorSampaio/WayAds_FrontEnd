@@ -1,4 +1,4 @@
-package com.wayads.mobile_app.ui.home
+package com.wayads.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

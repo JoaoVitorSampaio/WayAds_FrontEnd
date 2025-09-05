@@ -1,13 +1,13 @@
-package com.wayads.mobile_app
+package com.wayads.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.wayads.mobile_app.ui.home.HomeScreen
-import com.wayads.mobile_app.ui.theme.MobileappTheme
+import com.wayads.app.ui.theme.MobileappTheme
+import com.wayads.ui.home.HomeScreen
 
-class MainActivity : ComponentActivity() {
+class WayAdsApplication : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
