@@ -1,9 +1,9 @@
-package com.wayads.ui.gastronomia
+package com.wayads.ui.kids
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun GastronomiaScreen() {
-    Text("Gastronomia Screen")
+fun KidsScreen() {
+    Text("Kids Screen")
 }
