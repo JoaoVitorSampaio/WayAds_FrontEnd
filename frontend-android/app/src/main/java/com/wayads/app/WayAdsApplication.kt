@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.rememberNavController
 import com.wayads.app.ui.theme.MobileappTheme
-import com.wayads.ui.home.HomeScreen
+import com.wayads.ui.navigation.NavGraph
 
 class WayAdsApplication : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +14,8 @@ class WayAdsApplication : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MobileappTheme {
-                HomeScreen()
+                val navController = rememberNavController()
+                NavGraph(navController = navController)
             }
         }
     }

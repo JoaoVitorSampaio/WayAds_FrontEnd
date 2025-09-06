@@ -1,3 +1,9 @@
 package com.wayads.ui.atualidades
 
-class AtualidadesScreen {}
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+
+@Composable
+fun AtualidadesScreen() {
+    Text("Atualidades Screen")
+}
