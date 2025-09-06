@@ -20,7 +20,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -37,9 +36,9 @@ fun TurismoScreen(navController: NavController) {
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
-    // Imagem inicial para a tela de turismo
-    var currentImage by remember { mutableStateOf(R.drawable.turismo_placeholder) }
-    var selectedButton by remember { mutableStateOf("") }
+    // Inicia com um botão e imagem padrão
+    var selectedButton by remember { mutableStateOf("Praias") }
+    var currentImage by remember { mutableStateOf(R.drawable.praias_bg) }
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -78,21 +77,23 @@ fun TurismoScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize().background(Color.Black)
     ) {
+        // Container principal com ALTURA FIXA para evitar que os botões estiquem
         Row(
-            modifier = Modifier.weight(1f) // Usa weight para ser mais flexível
+            modifier = Modifier.height(597.dp)
         ) {
             Image(
                 painter = painterResource(id = currentImage),
                 contentDescription = "Banner principal",
-                contentScale = ContentScale.Crop, // Crop é melhor para preencher
+                contentScale = ContentScale.FillBounds, // Preenche sem cortar (evita "zoom" da imagem)
                 modifier = Modifier
-                    .weight(0.7f) // Proporção da tela
+                    .width(938.dp)
                     .fillMaxHeight()
             )
 
+            // Coluna do menu com LARGURA FIXA para evitar que a faixa preta estique
             Column(
                 modifier = Modifier
-                    .weight(0.3f) // Proporção da tela
+                    .width(342.dp)
                     .fillMaxHeight()
                     .background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -102,7 +103,6 @@ fun TurismoScreen(navController: NavController) {
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Botões com conteúdo e lógica corretos
                     TurismoMenuItem(
                         text = "Voltar",
                         isSelected = selectedButton == "Voltar",
@@ -115,7 +115,7 @@ fun TurismoScreen(navController: NavController) {
                         text = "Praias",
                         isSelected = selectedButton == "Praias",
                         onClick = {
-                            currentImage = R.drawable.praias_bg // Use sua imagem
+                            currentImage = R.drawable.praias_bg
                             selectedButton = "Praias"
                         }
                     )
@@ -123,7 +123,7 @@ fun TurismoScreen(navController: NavController) {
                         text = "Histórico",
                         isSelected = selectedButton == "Histórico",
                         onClick = {
-                            currentImage = R.drawable.historico_bg // Use sua imagem
+                            currentImage = R.drawable.historico_bg
                             selectedButton = "Histórico"
                         }
                     )
@@ -131,7 +131,7 @@ fun TurismoScreen(navController: NavController) {
                         text = "Eventos",
                         isSelected = selectedButton == "Eventos",
                         onClick = {
-                            currentImage = R.drawable.eventos_bg // Use sua imagem
+                            currentImage = R.drawable.eventos_bg
                             selectedButton = "Eventos"
                         }
                     )
@@ -139,7 +139,7 @@ fun TurismoScreen(navController: NavController) {
                         text = "Aventura",
                         isSelected = selectedButton == "Aventura",
                         onClick = {
-                            currentImage = R.drawable.aventura_bg // Use sua imagem
+                            currentImage = R.drawable.aventura_bg
                             selectedButton = "Aventura"
                         }
                     )
@@ -150,50 +150,37 @@ fun TurismoScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { showVolumeDialog = true }) {
+                    IconButton(onClick = { showVolumeDialog = true }, modifier = Modifier.size(20.dp)) {
                         Icon(Icons.Default.VolumeUp, contentDescription = "Controle de Volume", tint = Color.White)
                     }
                     Spacer(modifier = Modifier.width(14.dp))
-                    IconButton(onClick = { showBrightnessDialog = true }) {
+                    IconButton(onClick = { showBrightnessDialog = true }, modifier = Modifier.size(20.dp)) {
                         Icon(Icons.Default.WbSunny, contentDescription = "Controle de Brilho", tint = Color.White)
                     }
                 }
             }
         }
 
-        // Banner inferior corrigido
-        Column(
+        Image(
+            painter = painterResource(id = R.drawable.anuncio_generico),
+            contentDescription = "Banner inferior",
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(177.dp)
-                .background(Color(0xFFE0E0E0)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "ANUNCIE AQUI!",
-                color = Color.Red,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "anúncio em barra estático ou dinâmico",
-                color = Color.Black,
-                fontSize = 18.sp
-            )
-        }
+        )
     }
 }
 
 @Composable
 fun TurismoMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    // Cores corrigidas para o tema de turismo
-    val backgroundColor = when (text) {
-        "Voltar" -> Color(0xFF00E676) // Verde claro para "Voltar"
-        else -> if (isSelected) Color(0xFF2E7D32) else Color(0xFF1B5E20) // Verde escuro para os outros
+    val backgroundColor = when {
+        isSelected && text == "Voltar" -> Color(0xFF00E676)   // Cor para "Voltar" quando selecionado
+        isSelected -> Color(0xFF2E7D32)                       // Cor para outros botões quando selecionados
+        else -> Color(0xFF1B5E20)                             // Cor para QUALQUER botão quando não está selecionado
     }
-    val traceColor = if (text == "Voltar") Color(0xFF00E676) else Color.White
+
+    val traceColor = if (text == "Voltar" && isSelected) backgroundColor else Color.White
 
     Row(
         verticalAlignment = Alignment.CenterVertically
