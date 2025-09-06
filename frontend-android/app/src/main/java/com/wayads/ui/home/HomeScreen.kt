@@ -45,23 +45,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.wayads.app.R
 
+/**
+ * Tela principal do aplicativo.
+ */
 @Composable
 fun HomeScreen(navController: NavController) {
-    // Get context, window, and audio manager for system controls
     val context = LocalContext.current
     val window = (LocalView.current.context as Activity).window
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-    // State to hold the current brightness level
     var currentBrightness by remember { mutableStateOf(window.attributes.screenBrightness.takeIf { it >= 0.0f } ?: 0.5f) }
-
-    // State for controlling dialog visibility
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
@@ -100,13 +99,11 @@ fun HomeScreen(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black) // Background para a tela inteira
+        modifier = Modifier.fillMaxSize().background(Color.Black)
     ) {
-        // Área de conteúdo principal (Anúncio + Menu)
         Row(
             modifier = Modifier.height(597.dp)
         ) {
-            // Banner principal
             Image(
                 painter = painterResource(id = R.drawable.subway),
                 contentDescription = "Banner principal",
@@ -116,7 +113,6 @@ fun HomeScreen(navController: NavController) {
                     .fillMaxHeight()
             )
 
-            // Menu lateral
             Column(
                 modifier = Modifier
                     .width(342.dp)
@@ -124,7 +120,6 @@ fun HomeScreen(navController: NavController) {
                     .background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Botões de navegação ocupam o espaço disponível
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -137,16 +132,15 @@ fun HomeScreen(navController: NavController) {
                     MenuItem(navController = navController, route = "entretenimento", text = "Entretenimento", traceColor = Color.Yellow)
                 }
 
-                // Ícones de controle na parte inferior
                 Row(
-                    modifier = Modifier.padding(bottom = 14.dp), // Espaçamento da borda inferior
+                    modifier = Modifier.padding(bottom = 14.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { showVolumeDialog = true }, modifier = Modifier.size(20.dp)) {
                         Icon(Icons.Default.VolumeUp, contentDescription = "Controle de Volume", tint = Color.White)
                     }
-                    Spacer(modifier = Modifier.width(14.dp)) // Espaço entre os ícones
+                    Spacer(modifier = Modifier.width(14.dp))
                     IconButton(onClick = { showBrightnessDialog = true }, modifier = Modifier.size(20.dp)) {
                         Icon(Icons.Default.WbSunny, contentDescription = "Controle de Brilho", tint = Color.White)
                     }
@@ -154,7 +148,6 @@ fun HomeScreen(navController: NavController) {
             }
         }
 
-        // Banner inferior
         Image(
             painter = painterResource(id = R.drawable.anuncio_generico),
             contentDescription = "Banner inferior",
@@ -166,6 +159,9 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
+/**
+ * Item do menu da tela principal.
+ */
 @Composable
 fun MenuItem(navController: NavController, route: String, text: String, traceColor: Color) {
     Row(
@@ -176,10 +172,20 @@ fun MenuItem(navController: NavController, route: String, text: String, traceCol
             modifier = Modifier
                 .width(301.dp)
                 .height(94.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
-            shape = RectangleShape // Sem cantos arredondados
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2d2d2d)),
+            shape = RectangleShape
         ) {
-            Text(text, textAlign = TextAlign.Center, color = Color.White)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text,
+                    modifier = Modifier.padding(start = 16.dp),
+                    color = Color.White,
+                    fontSize = 24.sp
+                )
+            }
         }
         Box(
             modifier = Modifier
@@ -190,6 +196,9 @@ fun MenuItem(navController: NavController, route: String, text: String, traceCol
     }
 }
 
+/**
+ * Dialog para controle de volume e brilho.
+ */
 @Composable
 fun ControlDialog(
     onDismissRequest: () -> Unit,
