@@ -20,7 +20,7 @@ fun NavGraph(navController: NavHostController) {
         composable("home") { HomeScreen(navController) }
         composable("atualidades") { AtualidadesScreen() }
         composable("kids") { KidsScreen(navController) }
-        composable("turismo") { TurismoScreen() }
+        composable("turismo") { TurismoScreen(navController) }
         composable("gastronomia") { GastronomiaScreen() }
         composable("entretenimento") { EntretenimentoScreen() }
     }
