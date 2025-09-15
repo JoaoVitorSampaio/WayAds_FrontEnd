@@ -5,7 +5,10 @@ import android.content.Context
 import android.media.AudioManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -24,8 +27,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.wayads.app.R
 
+// ---------- MODELO ----------
+data class Praia(
+    val nome: String,
+    val imagem: Int,
+    val descricao: String
+)
+
+// ---------- TELA PRINCIPAL ----------
 @Composable
 fun TurismoScreen(navController: NavController) {
     val context = LocalContext.current
@@ -36,10 +50,119 @@ fun TurismoScreen(navController: NavController) {
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
-    // Inicia com um botão e imagem padrão
     var selectedButton by remember { mutableStateOf("Praias") }
-    var currentImage by remember { mutableStateOf(R.drawable.praias_bg) }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        Row(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            // Conteúdo principal
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
+                when (selectedButton) {
+                    "Praias" -> {
+                        val innerNavController = rememberNavController()
+                        NavHost(
+                            navController = innerNavController,
+                            startDestination = "listaPraias",
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            composable("listaPraias") { ListaDePraias(innerNavController) }
+                            composable("detalhePraia/{praiaNome}") { backStackEntry ->
+                                val praiaNome = backStackEntry.arguments?.getString("praiaNome") ?: ""
+                                DetalhePraiaScreen(praiaNome, innerNavController)
+                            }
+                        }
+                    }
+                    "Histórico" -> FullImage(R.drawable.historico_bg, "Histórico")
+                    "Eventos" -> FullImage(R.drawable.eventos_bg, "Eventos")
+                    "Aventura" -> FullImage(R.drawable.aventura_bg, "Aventura")
+                }
+            }
+
+            // 👉 CORREÇÃO 1: A LARGURA DA COLUNA DO MENU FOI AJUSTADA
+            Column(
+                modifier = Modifier
+                    .width(342.dp) // Ajustado para corresponder ao layout antigo
+                    .fillMaxHeight()
+                    .background(Color.Black),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f),
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TurismoMenuItem(
+                        text = "Voltar",
+                        isSelected = selectedButton == "Voltar",
+                        onClick = {
+                            selectedButton = "Voltar"
+                            navController.popBackStack()
+                        }
+                    )
+                    TurismoMenuItem(
+                        text = "Praias",
+                        isSelected = selectedButton == "Praias",
+                        onClick = { selectedButton = "Praias" }
+                    )
+                    TurismoMenuItem(
+                        text = "Histórico",
+                        isSelected = selectedButton == "Histórico",
+                        onClick = { selectedButton = "Histórico" }
+                    )
+                    TurismoMenuItem(
+                        text = "Eventos",
+                        isSelected = selectedButton == "Eventos",
+                        onClick = { selectedButton = "Eventos" }
+                    )
+                    TurismoMenuItem(
+                        text = "Aventura",
+                        isSelected = selectedButton == "Aventura",
+                        onClick = { selectedButton = "Aventura" }
+                    )
+                }
+
+                // Ícones de controle
+                Row(
+                    modifier = Modifier.padding(bottom = 14.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { showVolumeDialog = true }, modifier = Modifier.size(20.dp)) {
+                        Icon(Icons.Default.VolumeUp, contentDescription = "Controle de Volume", tint = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    IconButton(onClick = { showBrightnessDialog = true }, modifier = Modifier.size(20.dp)) {
+                        Icon(Icons.Default.WbSunny, contentDescription = "Controle de Brilho", tint = Color.White)
+                    }
+                }
+            }
+        }
+
+        // Banner inferior
+        Image(
+            painter = painterResource(id = R.drawable.anuncio_generico),
+            contentDescription = "Banner inferior",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(177.dp)
+        )
+    }
+
+    // Dialogs
     if (showVolumeDialog) {
         ControlDialog(
             onDismissRequest = { showVolumeDialog = false },
@@ -73,113 +196,116 @@ fun TurismoScreen(navController: NavController) {
             increaseIcon = Icons.Default.BrightnessHigh
         )
     }
+}
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black)
+// ---------- COMPONENTE IMAGEM CHEIA ----------
+@Composable
+fun FullImage(resId: Int, description: String) {
+    Image(
+        painter = painterResource(id = resId),
+        contentDescription = description,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+// ---------- LISTA DE PRAIAS ----------
+@Composable
+fun ListaDePraias(navController: NavController) {
+    val praias = listOf(
+        Praia("Praia do Bessa", R.drawable.bessa, "Praia tranquila com ótima faixa de areia."),
+        Praia("Praia de Camboinha", R.drawable.camboinha, "Famosa pelos passeios às piscinas naturais."),
+        Praia("Barra de Gramame", R.drawable.gramame, "Encontro do rio com o mar, muito procurada para passeios."),
+        Praia("Praia de Intermares", R.drawable.intermares, "Conhecida pelo surfe e pelos ninhos de tartarugas."),
+        Praia("Praia de Tambaú", R.drawable.tambau, "Cartão-postal de João Pessoa, cheia de vida e bares.")
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Container principal com ALTURA FIXA para evitar que os botões estiquem
-        Row(
-            modifier = Modifier.height(597.dp)
-        ) {
-            Image(
-                painter = painterResource(id = currentImage),
-                contentDescription = "Banner principal",
-                contentScale = ContentScale.FillBounds, // Preenche sem cortar (evita "zoom" da imagem)
+        items(praias) { praia ->
+            Card(
                 modifier = Modifier
-                    .width(938.dp)
-                    .fillMaxHeight()
-            )
-
-            // Coluna do menu com LARGURA FIXA para evitar que a faixa preta estique
-            Column(
-                modifier = Modifier
-                    .width(342.dp)
-                    .fillMaxHeight()
-                    .background(Color.Black),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clickable { navController.navigate("detalhePraia/${praia.nome}") },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    TurismoMenuItem(
-                        text = "Voltar",
-                        isSelected = selectedButton == "Voltar",
-                        onClick = {
-                            selectedButton = "Voltar"
-                            navController.popBackStack()
-                        }
-                    )
-                    TurismoMenuItem(
-                        text = "Praias",
-                        isSelected = selectedButton == "Praias",
-                        onClick = {
-                            currentImage = R.drawable.praias_bg
-                            selectedButton = "Praias"
-                        }
-                    )
-                    TurismoMenuItem(
-                        text = "Histórico",
-                        isSelected = selectedButton == "Histórico",
-                        onClick = {
-                            currentImage = R.drawable.historico_bg
-                            selectedButton = "Histórico"
-                        }
-                    )
-                    TurismoMenuItem(
-                        text = "Eventos",
-                        isSelected = selectedButton == "Eventos",
-                        onClick = {
-                            currentImage = R.drawable.eventos_bg
-                            selectedButton = "Eventos"
-                        }
-                    )
-                    TurismoMenuItem(
-                        text = "Aventura",
-                        isSelected = selectedButton == "Aventura",
-                        onClick = {
-                            currentImage = R.drawable.aventura_bg
-                            selectedButton = "Aventura"
-                        }
-                    )
-                }
-
                 Row(
-                    modifier = Modifier.padding(bottom = 14.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxSize().padding(8.dp)
                 ) {
-                    IconButton(onClick = { showVolumeDialog = true }, modifier = Modifier.size(20.dp)) {
-                        Icon(Icons.Default.VolumeUp, contentDescription = "Controle de Volume", tint = Color.White)
-                    }
-                    Spacer(modifier = Modifier.width(14.dp))
-                    IconButton(onClick = { showBrightnessDialog = true }, modifier = Modifier.size(20.dp)) {
-                        Icon(Icons.Default.WbSunny, contentDescription = "Controle de Brilho", tint = Color.White)
-                    }
+                    Image(
+                        painter = painterResource(id = praia.imagem),
+                        contentDescription = praia.nome,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .width(160.dp)
+                            .fillMaxHeight()
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(praia.nome, color = Color.White, fontSize = 20.sp)
                 }
             }
         }
-
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
     }
 }
 
+// ---------- DETALHE DA PRAIA ----------
+@Composable
+fun DetalhePraiaScreen(praiaNome: String, navController: NavController) {
+    val praias = listOf(
+        Praia("Praia do Bessa", R.drawable.bessa, "Praia tranquila com ótima faixa de areia."),
+        Praia("Praia de Camboinha", R.drawable.camboinha, "Famosa pelos passeios às piscinas naturais."),
+        Praia("Barra de Gramame", R.drawable.gramame, "Encontro do rio com o mar, muito procurada para passeios."),
+        Praia("Praia de Intermares", R.drawable.intermares, "Conhecida pelo surfe e pelos ninhos de tartarugas."),
+        Praia("Praia de Tambaú", R.drawable.tambau, "Cartão-postal de João Pessoa, cheia de vida e bares.")
+    )
+
+    val praia = praias.find { it.nome == praiaNome }
+
+    praia?.let {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = it.imagem),
+                contentDescription = it.nome,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(it.nome, fontSize = 24.sp, color = Color.White)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(it.descricao, fontSize = 16.sp, color = Color.LightGray)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navController.popBackStack() }) {
+                Text("Voltar")
+            }
+        }
+    }
+}
+
+// ---------- MENU ITEM ----------
+// 👉 CORREÇÃO 2: ESTE COMPONENTE FOI TOTALMENTE AJUSTADO PARA FICAR IGUAL AO ANTIGO
 @Composable
 fun TurismoMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val backgroundColor = when {
-        isSelected && text == "Voltar" -> Color(0xFF00E676)   // Cor para "Voltar" quando selecionado
-        isSelected -> Color(0xFF2E7D32)                       // Cor para outros botões quando selecionados
-        else -> Color(0xFF1B5E20)                             // Cor para QUALQUER botão quando não está selecionado
+        isSelected && text == "Voltar" -> Color(0xFF00E676)
+        isSelected -> Color(0xFF2E7D32)
+        else -> Color(0xFF1B5E20)
     }
-
     val traceColor = if (text == "Voltar" && isSelected) backgroundColor else Color.White
 
     Row(
@@ -188,32 +314,35 @@ fun TurismoMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
         Button(
             onClick = onClick,
             modifier = Modifier
-                .width(301.dp)
-                .height(94.dp),
+                .width(301.dp)  // Largura do botão antigo
+                .height(94.dp), // Altura do botão antigo
             colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
             shape = RectangleShape
         ) {
+            // Box para forçar o alinhamento à esquerda
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
                     text,
-                    modifier = Modifier.padding(start = 16.dp),
+                    modifier = Modifier.padding(start = 16.dp), // Padding interno do texto
                     color = Color.White,
-                    fontSize = 24.sp
+                    fontSize = 24.sp // Tamanho da fonte antigo
                 )
             }
         }
+        // Barra lateral
         Box(
             modifier = Modifier
-                .width(10.dp)
-                .height(94.dp)
+                .width(10.dp)   // Largura da barra antiga
+                .height(94.dp)  // Altura da barra antiga
                 .background(traceColor)
         )
     }
 }
 
+// ---------- DIALOG ----------
 @Composable
 fun ControlDialog(
     onDismissRequest: () -> Unit,
