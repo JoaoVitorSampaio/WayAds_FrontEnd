@@ -10,6 +10,9 @@ import com.wayads.ui.gastronomia.GastronomiaScreen
 import com.wayads.ui.home.HomeScreen
 import com.wayads.ui.kids.KidsScreen
 import com.wayads.ui.turismo.TurismoScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.wayads.ui.gastronomia.RecipeDetailScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -21,7 +24,14 @@ fun NavGraph(navController: NavHostController) {
         composable("atualidades") { AtualidadesScreen(navController) }
         composable("kids") { KidsScreen(navController) }
         composable("turismo") { TurismoScreen(navController) }
-        composable("gastronomia") { GastronomiaScreen() }
+        composable("gastronomia") { GastronomiaScreen(navController) }
         composable("entretenimento") { EntretenimentoScreen(navController) }
+        composable(
+            "receita/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id")
+            RecipeDetailScreen(navController = navController, recipeId = id)
+        }
     }
 }
