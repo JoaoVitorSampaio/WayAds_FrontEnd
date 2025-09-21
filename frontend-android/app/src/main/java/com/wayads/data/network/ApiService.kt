@@ -2,15 +2,20 @@ package com.wayads.data.network
 
 import com.wayads.data.model.Anuncio
 import com.wayads.data.model.MovieResponse
+import com.wayads.data.model.Noticia
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface ApiService {
 
     @GET("v1/anuncios")
     suspend fun getAnuncios(): List<Anuncio>
 
-    @GET("atualidades")
-    suspend fun getAtualidades(): List<Anuncio>
+    @GET("v1/atualidades/{id}")
+    suspend fun getNoticia(@Path("id") id: Int): Noticia
+
+    @GET("v1/atualidades/categoria/{category}")
+    suspend fun getNoticias(@Path("category") category: String): List<Noticia>
 
     @GET("entretenimento")
     suspend fun getEntretenimento(): List<Anuncio>
