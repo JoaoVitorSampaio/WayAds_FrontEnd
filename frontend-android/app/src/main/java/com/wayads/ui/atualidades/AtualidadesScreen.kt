@@ -1,4 +1,3 @@
-
 package com.wayads.ui.atualidades
 
 import android.app.Activity
@@ -6,41 +5,16 @@ import android.content.Context
 import android.media.AudioManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.SettingsBrightness
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.BrightnessLow
-import androidx.compose.material.icons.filled.BrightnessHigh
-import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,24 +24,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.wayads.app.R
-
-/**
- * Categorias de notícias
- */
-enum class Categoria(val label: String, val imagens: List<Int>) {
-    POLITICA("Política", listOf(R.drawable.politica, R.drawable.politica2)),
-    REGIONAL("Regional", listOf(R.drawable.regional, R.drawable.regional2)),
-    POLICIAL("Policial", listOf(R.drawable.policia, R.drawable.policia2)),
-    FAMOSOS("Famosos", listOf(R.drawable.famosos, R.drawable.famosos1))
-}
+import com.wayads.ui.atualidades.viewmodel.AtualidadesUiState
+import com.wayads.ui.atualidades.viewmodel.AtualidadesViewModel
 
 @Composable
-fun AtualidadesScreen(navController: NavController) {
+fun AtualidadesScreen(navController: NavController, viewModel: AtualidadesViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+
     val context = LocalContext.current
     val window = (LocalView.current.context as Activity).window
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -75,9 +47,6 @@ fun AtualidadesScreen(navController: NavController) {
     var currentBrightness by remember { mutableStateOf(window.attributes.screenBrightness.takeIf { it >= 0.0f } ?: 0.5f) }
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
-
-    // Categoria inicial
-    var categoriaSelecionada by remember { mutableStateOf(Categoria.POLITICA) }
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -113,35 +82,59 @@ fun AtualidadesScreen(navController: NavController) {
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black)
-    ) {
-        Row(
-            modifier = Modifier.height(597.dp)
-        ) {
-            // Área de notícias (imagens da categoria selecionada, exceto Voltar)
-            Column(
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        Row(modifier = Modifier.height(597.dp)) {
+            // Main content
+            Box(
                 modifier = Modifier
                     .width(938.dp)
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-                    .background(Color.Black),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .background(Color.DarkGray),
+                contentAlignment = Alignment.Center
             ) {
-                categoriaSelecionada.imagens.forEach { img ->
-                    Image(
-                        painter = painterResource(id = img),
-                        contentDescription = "Notícia ${categoriaSelecionada.label}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(280.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                when (val state = uiState) {
+                    is AtualidadesUiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is AtualidadesUiState.Success -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(state.noticias) { noticia ->
+                                Card(
+                                    modifier = Modifier.clickable { navController.navigate("noticiaDetail/${noticia.id}") },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                                ) {
+                                    Column {
+                                        AsyncImage(
+                                            model = noticia.fotoUrl.replace("localhost", "192.168.0.2"),
+                                            contentDescription = noticia.titulo,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .height(180.dp)
+                                                .fillMaxWidth()
+                                        )
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(text = noticia.titulo, fontSize = 18.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.White)
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(text = noticia.descricao, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis, color = Color.White)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    is AtualidadesUiState.Error -> {
+                        Text(text = state.message, color = Color.Red)
+                    }
                 }
             }
 
-            // Menu lateral direito
+            // Side menu
             Column(
                 modifier = Modifier
                     .width(342.dp)
@@ -154,34 +147,11 @@ fun AtualidadesScreen(navController: NavController) {
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Voltar com estado visual
-                    MenuItemBlue(
-                        onClick = { navController.popBackStack() },
-                        text = "Voltar",
-                        selected = false
-                    )
-
-                    // Botões de categorias
-                    MenuItemBlue(
-                        onClick = { categoriaSelecionada = Categoria.POLITICA },
-                        text = "Política",
-                        selected = (categoriaSelecionada == Categoria.POLITICA)
-                    )
-                    MenuItemBlue(
-                        onClick = { categoriaSelecionada = Categoria.REGIONAL },
-                        text = "Regional",
-                        selected = (categoriaSelecionada == Categoria.REGIONAL)
-                    )
-                    MenuItemBlue(
-                        onClick = { categoriaSelecionada = Categoria.POLICIAL },
-                        text = "Policial",
-                        selected = (categoriaSelecionada == Categoria.POLICIAL)
-                    )
-                    MenuItemBlue(
-                        onClick = { categoriaSelecionada = Categoria.FAMOSOS },
-                        text = "Famosos",
-                        selected = (categoriaSelecionada == Categoria.FAMOSOS)
-                    )
+                    AtualidadesMenuItem(text = "Voltar", isSelected = false, onClick = { navController.popBackStack() })
+                    AtualidadesMenuItem(text = "Política", isSelected = selectedCategory == "POLITICA", onClick = { viewModel.fetchNoticias("POLITICA") })
+                    AtualidadesMenuItem(text = "Economia", isSelected = selectedCategory == "ECONOMIA", onClick = { viewModel.fetchNoticias("ECONOMIA") })
+                    AtualidadesMenuItem(text = "Mundo", isSelected = selectedCategory == "MUNDO", onClick = { viewModel.fetchNoticias("MUNDO") })
+                    AtualidadesMenuItem(text = "Tecnologia", isSelected = selectedCategory == "TECNOLOGIA", onClick = { viewModel.fetchNoticias("TECNOLOGIA") })
                 }
 
                 Row(
@@ -200,7 +170,6 @@ fun AtualidadesScreen(navController: NavController) {
             }
         }
 
-        // Banner inferior
         Image(
             painter = painterResource(id = R.drawable.anuncio_generico),
             contentDescription = "Banner inferior",
@@ -213,41 +182,28 @@ fun AtualidadesScreen(navController: NavController) {
 }
 
 @Composable
-fun MenuItemBlue(
-    onClick: () -> Unit,
-    text: String,
-    selected: Boolean
-) {
-    val backgroundColor = if (selected) Color(0xFF1565C0) else Color(0xFF0000AA)
-    // azul mais claro quando selecionado
+fun AtualidadesMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    val backgroundColor = if (isSelected) Color(0xFF2E7D32) else Color(0xFF1B5E20)
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Button(
-            onClick = onClick,
-            modifier = Modifier
-                .width(301.dp)
-                .height(94.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
-            shape = RectangleShape
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text,
-                    modifier = Modifier.padding(start = 16.dp),
-                    color = Color.White,
-                    fontSize = 24.sp
-                )
-            }
-        }
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(301.dp)
+            .height(94.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
+        shape = RectangleShape
+    ) {
         Box(
-            modifier = Modifier
-                .width(10.dp)
-                .height(94.dp)
-                .background(Color.White)
-        )
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text,
+                modifier = Modifier.padding(start = 16.dp),
+                color = Color.White,
+                fontSize = 24.sp
+            )
+        }
     }
 }
 
