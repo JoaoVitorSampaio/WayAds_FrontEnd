@@ -1,20 +1,40 @@
 package com.wayads.ui.home.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wayads.app.R
+import androidx.lifecycle.viewModelScope
+import com.wayads.data.model.Ad
+import com.wayads.repository.AdRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
-    private val _bannerPrincipal = MutableLiveData<Int>(R.drawable.banner_subway)
-    val bannerPrincipal: LiveData<Int> = _bannerPrincipal
+sealed class HomeUiState {
+    object Loading : HomeUiState()
+    data class Success(val ads: List<Ad>) : HomeUiState()
+    data class Error(val message: String) : HomeUiState()
+}
 
-    private val _bannerInferior = MutableLiveData<Int>(R.drawable.ad_placeholder)
-    val bannerInferior: LiveData<Int> = _bannerInferior
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val adRepository: AdRepository) : ViewModel() {
 
-    // Exemplo: atualizar banners dinamicamente
-    fun atualizarBanners(novoBanner: Int, novoAd: Int) {
-        _bannerPrincipal.value = novoBanner
-        _bannerInferior.value = novoAd
+    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    val uiState: StateFlow<HomeUiState> = _uiState
+
+    init {
+        fetchAds()
+    }
+
+    private fun fetchAds() {
+        viewModelScope.launch {
+            _uiState.value = HomeUiState.Loading
+            try {
+                val ads = adRepository.getAnuncios()
+                _uiState.value = HomeUiState.Success(ads)
+            } catch (e: Exception) {
+                _uiState.value = HomeUiState.Error(e.message ?: "Unknown error")
+            }
+        }
     }
 }

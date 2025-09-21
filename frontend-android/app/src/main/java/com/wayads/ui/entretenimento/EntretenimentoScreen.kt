@@ -6,43 +6,16 @@ import android.media.AudioManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrightnessHigh
-import androidx.compose.material.icons.filled.BrightnessLow
-import androidx.compose.material.icons.filled.VolumeDown
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,17 +28,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.wayads.app.R
-
-data class Filme(
-    val nome: String,
-    val imagem: Int,
-    val descricao: String
-)
+import com.wayads.data.model.Movie
+import com.wayads.ui.entretenimento.viewmodel.EntretenimentoViewModel
+import com.wayads.ui.entretenimento.viewmodel.MovieUiState
 
 enum class EntretenimentoCategoria(val label: String) {
     FILMES("Filmes em cartaz"),
@@ -75,7 +47,7 @@ enum class EntretenimentoCategoria(val label: String) {
 }
 
 @Composable
-fun EntretenimentoScreen(navController: NavController) {
+fun EntretenimentoScreen(navController: NavController, viewModel: EntretenimentoViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val window = (LocalView.current.context as Activity).window
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -85,6 +57,10 @@ fun EntretenimentoScreen(navController: NavController) {
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
     var categoriaSelecionada by remember { mutableStateOf(EntretenimentoCategoria.FILMES) }
+
+    if (categoriaSelecionada == EntretenimentoCategoria.FILMES) {
+        viewModel.fetchMovies()
+    }
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -137,15 +113,16 @@ fun EntretenimentoScreen(navController: NavController) {
                 when (categoriaSelecionada) {
                     EntretenimentoCategoria.FILMES -> {
                         val innerNavController = rememberNavController()
+                        val uiState by viewModel.uiState.collectAsState()
                         NavHost(
                             navController = innerNavController,
                             startDestination = "listaFilmes",
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            composable("listaFilmes") { ListaDeFilmes(innerNavController) }
+                            composable("listaFilmes") { ListaDeFilmes(innerNavController, uiState) }
                             composable("detalheFilme/{filmeNome}") { backStackEntry ->
                                 val filmeNome = backStackEntry.arguments?.getString("filmeNome") ?: ""
-                                DetalheFilmeScreen(filmeNome, innerNavController)
+                                DetalheFilmeScreen(filmeNome, innerNavController, viewModel)
                             }
                         }
                     }
@@ -242,64 +219,58 @@ fun EntretenimentoScreen(navController: NavController) {
 }
 
 @Composable
-fun ListaDeFilmes(navController: NavController) {
-    val filmes = listOf(
-        Filme("Invocação do Mal: O Último Ritual", R.drawable.invoc4, "Ed e Lorraine Warren investigam a assombração da família Smurl na Pensilvânia, um de seus casos mais famosos, enquanto se aproximam da aposentadoria."),
-        Filme("Demon Slayer: Kimetsu no Yaiba – O Filme: Mugen Train", R.drawable.demonslayer, "Tanjiro e seus amigos se juntam ao Hashira das Chamas, Kyojuro Rengoku, para investigar o desaparecimento de pessoas em um trem misterioso."),
-        Filme("A Longa Marcha: Caminhe ou Morra", R.drawable.longamacha, "Em um futuro distópico, jovens competem em uma caminhada brutal sem parar, onde o último sobrevivente ganha um grande prêmio."),
-        Filme("A Vida de Chuck", R.drawable.vidachuck, "A história da vida de Charles 'Chuck' Krantz contada em ordem cronológica inversa, começando com sua morte e retrocedendo até sua infância."),
-        Filme("O Pior Homem de Londres", R.drawable.piorhomemlondres, "A história de Charles Augustus Howell, um negociante de arte e mestre da chantagem na Londres vitoriana, que inspirou o criador de Sherlock Holmes.")
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(filmes) { filme ->
-            Card(
+fun ListaDeFilmes(navController: NavController, uiState: MovieUiState) {
+    when (uiState) {
+        is MovieUiState.Loading -> {
+            CircularProgressIndicator()
+        }
+        is MovieUiState.Success -> {
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clickable { navController.navigate("detalheFilme/${filme.nome}") },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxSize().padding(8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = filme.imagem),
-                        contentDescription = filme.nome,
-                        contentScale = ContentScale.Crop,
+                items(uiState.movies) { movie ->
+                    Card(
                         modifier = Modifier
-                            .width(160.dp)
-                            .fillMaxHeight()
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(filme.nome, color = Color.White, fontSize = 20.sp)
+                            .fillMaxWidth()
+                            .height(160.dp)
+                            .clickable { navController.navigate("detalheFilme/${movie.title}") },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxSize().padding(8.dp)
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(movie.posterUrl),
+                                contentDescription = movie.title,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .width(160.dp)
+                                    .fillMaxHeight()
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(movie.title, color = Color.White, fontSize = 20.sp)
+                        }
+                    }
                 }
             }
+        }
+        is MovieUiState.Error -> {
+            Text(text = uiState.message, color = Color.Red)
         }
     }
 }
 
 @Composable
-fun DetalheFilmeScreen(filmeNome: String, navController: NavController) {
-    val filmes = listOf(
-        Filme("Invocação do Mal: O Último Ritual", R.drawable.invoc4, "Ed e Lorraine Warren investigam a assombração da família Smurl na Pensilvânia, um de seus casos mais famosos, enquanto se aproximam da aposentadoria."),
-        Filme("Demon Slayer: Kimetsu no Yaiba – O Filme: Mugen Train", R.drawable.demonslayer, "Tanjiro e seus amigos se juntam ao Hashira das Chamas, Kyojuro Rengoku, para investigar o desaparecimento de pessoas em um trem misterioso."),
-        Filme("A Longa Marcha: Caminhe ou Morra", R.drawable.longamacha, "Em um futuro distópico, jovens competem em uma caminhada brutal sem parar, onde o último sobrevivente ganha um grande prêmio."),
-        Filme("A Vida de Chuck", R.drawable.vidachuck, "A história da vida de Charles 'Chuck' Krantz contada em ordem cronológica inversa, começando com sua morte e retrocedendo até sua infância."),
-        Filme("O Pior Homem de Londres", R.drawable.piorhomemlondres, "A história de Charles Augustus Howell, um negociante de arte e mestre da chantagem na Londres vitoriana, que inspirou o criador de Sherlock Holmes.")
-    )
+fun DetalheFilmeScreen(filmeNome: String, navController: NavController, viewModel: EntretenimentoViewModel) {
+    val movie = viewModel.getMovieByTitle(filmeNome)
 
-    val filme = filmes.find { it.nome == filmeNome }
-
-    filme?.let {
+    movie?.let {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -308,17 +279,17 @@ fun DetalheFilmeScreen(filmeNome: String, navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = it.imagem),
-                contentDescription = it.nome,
+                painter = rememberAsyncImagePainter(it.posterUrl),
+                contentDescription = it.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(it.nome, fontSize = 24.sp, color = Color.White)
+            Text(it.title, fontSize = 24.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(it.descricao, fontSize = 16.sp, color = Color.LightGray)
+            Text(it.description, fontSize = 16.sp, color = Color.LightGray)
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navController.popBackStack() }) {
                 Text("Voltar")

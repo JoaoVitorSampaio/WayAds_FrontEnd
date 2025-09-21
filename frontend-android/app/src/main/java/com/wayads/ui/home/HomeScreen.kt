@@ -51,11 +51,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.wayads.app.R
 
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wayads.ui.home.viewmodel.HomeViewModel
+import com.wayads.ui.home.viewmodel.HomeUiState
+
 /**
  * Tela principal do aplicativo.
  */
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val window = (LocalView.current.context as Activity).window
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -63,6 +69,8 @@ fun HomeScreen(navController: NavController) {
     var currentBrightness by remember { mutableStateOf(window.attributes.screenBrightness.takeIf { it >= 0.0f } ?: 0.5f) }
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
+
+    val uiState by viewModel.uiState.collectAsState()
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -104,14 +112,24 @@ fun HomeScreen(navController: NavController) {
         Row(
             modifier = Modifier.height(597.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.subway),
-                contentDescription = "Banner principal",
-                contentScale = ContentScale.FillBounds,
+            Box(
                 modifier = Modifier
                     .width(938.dp)
-                    .fillMaxHeight()
-            )
+                    .fillMaxHeight(),
+                contentAlignment = Alignment.Center
+            ) {
+                when (val state = uiState) {
+                    is HomeUiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is HomeUiState.Success -> {
+                        Text(text = state.ads.firstOrNull()?.title ?: "No ads found", color = Color.White)
+                    }
+                    is HomeUiState.Error -> {
+                        Text(text = state.message, color = Color.Red)
+                    }
+                }
+            }
 
             Column(
                 modifier = Modifier
