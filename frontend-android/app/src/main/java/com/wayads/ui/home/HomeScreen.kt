@@ -3,6 +3,7 @@ package com.wayads.ui.home
 import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrightnessHigh
@@ -32,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.wayads.app.R
 
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,6 +65,7 @@ import com.wayads.ui.home.viewmodel.HomeUiState
 /**
  * Tela principal do aplicativo.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -71,6 +77,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val currentAdIndex by viewModel.currentAdIndex.collectAsState()
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -123,7 +130,27 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         CircularProgressIndicator()
                     }
                     is HomeUiState.Success -> {
-                        Text(text = state.ads.firstOrNull()?.title ?: "No ads found", color = Color.White)
+                        if (state.ads.isNotEmpty()) {
+                            val pagerState = rememberPagerState(initialPage = 0, pageCount = { state.ads.size })
+
+                            LaunchedEffect(currentAdIndex) {
+                                pagerState.animateScrollToPage(currentAdIndex)
+                            }
+
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier.fillMaxSize()
+                            ) { page ->
+                                AsyncImage(
+                                    model = state.ads[page].imagemUrl.replace("localhost", "192.168.0.2"),
+                                    contentDescription = state.ads[page].titulo,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        } else {
+                            Text(text = "No ads found", color = Color.White)
+                        }
                     }
                     is HomeUiState.Error -> {
                         Text(text = state.message, color = Color.Red)
