@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -171,40 +173,55 @@ fun GastronomiaScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Voltar",
                         isSelected = false,
                         onClick = { navController.popBackStack() }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Todas",
                         isSelected = filtroRegiao == RegiaoGeografica.TODAS,
                         onClick = { filtroRegiao = RegiaoGeografica.TODAS }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Receitas",
                         isSelected = filtroRegiao == RegiaoGeografica.RECEITAS,
                         onClick = { filtroRegiao = RegiaoGeografica.RECEITAS }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Oriental",
                         isSelected = filtroRegiao == RegiaoGeografica.ORIENTAL,
                         onClick = { filtroRegiao = RegiaoGeografica.ORIENTAL }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Regional",
                         isSelected = filtroRegiao == RegiaoGeografica.REGIONAL,
                         onClick = { filtroRegiao = RegiaoGeografica.REGIONAL }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     GastronomiaMenuItem(
                         text = "Massas",
                         isSelected = filtroRegiao == RegiaoGeografica.MASSAS,
                         onClick = { filtroRegiao = RegiaoGeografica.MASSAS }
                     )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 Row(
