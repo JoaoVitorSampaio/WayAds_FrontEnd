@@ -25,19 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.wayads.ui.gastronomia.model.*
+import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.stateDescription
 
 /**
  * Item do menu lateral da tela de gastronomia
  */
 @Composable
 fun GastronomiaMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    val backgroundColor = when {
-        isSelected && text == "Voltar" -> Color(0xFFFF5722)   // Cor laranja para "Voltar" quando selecionado
-        isSelected -> Color(0xFFD32F2F)                       // Cor vermelha para outros botões quando selecionados
-        else -> Color(0xFF8B0000)                             // Cor vermelha escura para botões não selecionados
-    }
-
-    val traceColor = if (text == "Voltar" && isSelected) backgroundColor else Color.White
+    val backgroundColor = if (isSelected) Color(0xFFD32F2F) else Color(0xFF8B0000)
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -46,7 +44,12 @@ fun GastronomiaMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) 
             onClick = onClick,
             modifier = Modifier
                 .width(301.dp)
-                .height(94.dp),
+                .height(94.dp)
+                .semantics {
+                    // role = Role.Button
+                    selected = isSelected
+                    stateDescription = if (isSelected) "Selecionado" else "Não selecionado"
+                },
             colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
             shape = RectangleShape
         ) {
@@ -66,7 +69,8 @@ fun GastronomiaMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) 
             modifier = Modifier
                 .width(10.dp)
                 .height(94.dp)
-                .background(traceColor)
+                .background(Color.White)
+                .semantics { invisibleToUser() }
         )
     }
 }
