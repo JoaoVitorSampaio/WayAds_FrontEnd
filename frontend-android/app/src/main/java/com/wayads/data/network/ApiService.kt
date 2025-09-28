@@ -3,6 +3,7 @@ package com.wayads.data.network
 import com.wayads.data.model.Anuncio
 import com.wayads.data.model.MovieResponse
 import com.wayads.data.model.Noticia
+import com.wayads.data.model.PontoGastronomico
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -20,8 +21,8 @@ interface ApiService {
     @GET("entretenimento")
     suspend fun getEntretenimento(): List<Anuncio>
 
-    @GET("gastronomia")
-    suspend fun getGastronomia(): List<Anuncio>
+    @GET("v1/pontos-gastronomicos")
+    suspend fun getPontosGastronomicos(): List<PontoGastronomico>
 
     @GET("kids")
     suspend fun getKids(): List<Anuncio>
