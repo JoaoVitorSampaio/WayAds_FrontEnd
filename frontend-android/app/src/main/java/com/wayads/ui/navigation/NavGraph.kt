@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.wayads.ui.atualidades.AtualidadesScreen
 import com.wayads.ui.atualidades.NoticiaDetailScreen
 import com.wayads.ui.entretenimento.EntretenimentoScreen
+import com.wayads.ui.entretenimento.EsporteDetailScreen
 import com.wayads.ui.gastronomia.GastronomiaScreen
 import com.wayads.ui.gastronomia.RecipeDetailScreen
 import com.wayads.ui.home.HomeScreen
@@ -28,6 +29,12 @@ fun NavGraph(navController: NavHostController) {
             arguments = listOf(navArgument("noticiaId") { type = NavType.IntType })
         ) {
             NoticiaDetailScreen(navController = navController)
+        }
+        composable(
+            "esporteDetail/{esporteId}",
+            arguments = listOf(navArgument("esporteId") { type = NavType.IntType })
+        ) {
+            EsporteDetailScreen(navController = navController)
         }
         composable("kids") { KidsScreen(navController) }
         composable("turismo") { TurismoScreen(navController) }

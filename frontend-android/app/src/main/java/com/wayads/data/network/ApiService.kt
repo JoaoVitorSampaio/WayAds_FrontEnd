@@ -2,6 +2,8 @@ package com.wayads.data.network
 
 import com.wayads.data.model.Anuncio
 import com.wayads.data.model.MovieResponse
+import com.wayads.data.model.Musica
+import com.wayads.data.model.MusicaResponse
 import com.wayads.data.model.Noticia
 import com.wayads.data.model.PontoGastronomico
 import retrofit2.http.GET
@@ -32,4 +34,7 @@ interface ApiService {
 
     @GET("v1/filmes")
     suspend fun getMovies(): MovieResponse
+
+    @GET("v1/musicas")
+    suspend fun getMusicas(): MusicaResponse
 }
