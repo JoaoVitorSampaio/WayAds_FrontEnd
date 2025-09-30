@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -37,7 +38,15 @@ import coil.compose.rememberAsyncImagePainter
 import com.wayads.app.R
 import com.wayads.data.model.Movie
 import com.wayads.ui.entretenimento.viewmodel.EntretenimentoViewModel
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
+import com.wayads.ui.entretenimento.viewmodel.EsporteUiState
+
 import com.wayads.ui.entretenimento.viewmodel.MovieUiState
+import com.wayads.ui.entretenimento.MusicPlayerScreen
 
 enum class EntretenimentoCategoria(val label: String) {
     FILMES("Filmes em cartaz"),
@@ -56,7 +65,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
-    var categoriaSelecionada by remember { mutableStateOf(EntretenimentoCategoria.FILMES) }
+    val categoriaSelecionada by viewModel.categoriaSelecionada.collectAsState()
 
     if (categoriaSelecionada == EntretenimentoCategoria.FILMES) {
         viewModel.fetchMovies()
@@ -126,10 +135,57 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                             }
                         }
                     }
+                    EntretenimentoCategoria.MUSICAS -> {
+                        MusicPlayerScreen()
+                    }
+                    EntretenimentoCategoria.ESPORTES -> {
+                        val esporteUiState by viewModel.esporteUiState.collectAsState()
+                        LaunchedEffect(Unit) {
+                            viewModel.fetchEsportes()
+                        }
+                        when (val state = esporteUiState) {
+                            is EsporteUiState.Loading -> {
+                                CircularProgressIndicator()
+                            }
+                            is EsporteUiState.Success -> {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    contentPadding = PaddingValues(16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    items(state.noticias) { noticia ->
+                                        Card(
+                                            modifier = Modifier.clickable { navController.navigate("esporteDetail/${noticia.id}") },
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                                        ) {
+                                            Column {
+                                                AsyncImage(
+                                                    model = noticia.fotoUrl.replace("localhost", "192.168.0.2"),
+                                                    contentDescription = noticia.titulo,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .height(180.dp)
+                                                        .fillMaxWidth()
+                                                )
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text(text = noticia.titulo, fontSize = 18.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color.White)
+                                                    Spacer(modifier = Modifier.height(8.dp))
+                                                    Text(text = noticia.descricao, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis, color = Color.White)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            is EsporteUiState.Error -> {
+                                Text(text = state.message, color = Color.Red)
+                            }
+                        }
+                    }
                     else -> {
                         val imagens = when (categoriaSelecionada) {
-                            EntretenimentoCategoria.MUSICAS -> listOf(R.drawable.anuncio_generico, R.drawable.subway)
-                            EntretenimentoCategoria.ESPORTES -> listOf(R.drawable.anuncio_generico, R.drawable.subway)
                             EntretenimentoCategoria.EVENTOS -> listOf(R.drawable.eventos_bg)
                             else -> emptyList()
                         }
@@ -170,22 +226,22 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                     )
 
                     MenuItemEntretenimento(
-                        onClick = { categoriaSelecionada = EntretenimentoCategoria.FILMES },
+                        onClick = { viewModel.onCategoriaSelecionada(EntretenimentoCategoria.FILMES) },
                         text = "Filmes em cartaz",
                         selected = (categoriaSelecionada == EntretenimentoCategoria.FILMES)
                     )
                     MenuItemEntretenimento(
-                        onClick = { categoriaSelecionada = EntretenimentoCategoria.MUSICAS },
+                        onClick = { viewModel.onCategoriaSelecionada(EntretenimentoCategoria.MUSICAS) },
                         text = "Músicas",
                         selected = (categoriaSelecionada == EntretenimentoCategoria.MUSICAS)
                     )
                     MenuItemEntretenimento(
-                        onClick = { categoriaSelecionada = EntretenimentoCategoria.ESPORTES },
+                        onClick = { viewModel.onCategoriaSelecionada(EntretenimentoCategoria.ESPORTES) },
                         text = "Esportes",
                         selected = (categoriaSelecionada == EntretenimentoCategoria.ESPORTES)
                     )
                     MenuItemEntretenimento(
-                        onClick = { categoriaSelecionada = EntretenimentoCategoria.EVENTOS },
+                        onClick = { viewModel.onCategoriaSelecionada(EntretenimentoCategoria.EVENTOS) },
                         text = "Eventos & Cultura",
                         selected = (categoriaSelecionada == EntretenimentoCategoria.EVENTOS)
                     )

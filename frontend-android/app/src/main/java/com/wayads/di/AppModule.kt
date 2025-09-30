@@ -2,6 +2,7 @@ package com.wayads.di
 
 import com.wayads.app.BuildConfig
 import com.wayads.data.network.ApiService
+import com.wayads.data.repository.MusicaRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,5 +41,11 @@ object AppModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMusicaRepository(apiService: ApiService): MusicaRepository {
+        return MusicaRepository(apiService)
     }
 }
