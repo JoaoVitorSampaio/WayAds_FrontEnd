@@ -51,8 +51,7 @@ import com.wayads.ui.components.ErrorScreen
 enum class EntretenimentoCategoria(val label: String) {
     FILMES("Filmes em cartaz"),
     MUSICAS("Músicas"),
-    ESPORTES("Esportes"),
-    EVENTOS("Eventos & Cultura")
+    ESPORTES("Esportes")
 }
 
 @Composable
@@ -184,26 +183,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                             }
                         }
                     }
-                    else -> {
-                        val imagens = when (categoriaSelecionada) {
-                            EntretenimentoCategoria.EVENTOS -> listOf(R.drawable.eventos_bg)
-                            else -> emptyList()
-                        }
-                        Column(
-                            modifier = Modifier.verticalScroll(rememberScrollState())
-                        ) {
-                            imagens.forEach { img ->
-                                Image(
-                                    painter = painterResource(id = img),
-                                    contentDescription = "Imagem da categoria ${categoriaSelecionada.label}",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(280.dp),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-                    }
+
                 }
             }
 
@@ -240,11 +220,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                         text = "Esportes",
                         selected = (categoriaSelecionada == EntretenimentoCategoria.ESPORTES)
                     )
-                    MenuItemEntretenimento(
-                        onClick = { viewModel.onCategoriaSelecionada(EntretenimentoCategoria.EVENTOS) },
-                        text = "Eventos & Cultura",
-                        selected = (categoriaSelecionada == EntretenimentoCategoria.EVENTOS)
-                    )
+
                 }
 
                 Row(

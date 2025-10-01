@@ -7,6 +7,7 @@ import com.wayads.data.model.AnuncioEstatico
 import com.wayads.data.model.MovieResponse
 import com.wayads.data.model.MusicaResponse
 import com.wayads.data.model.Noticia
+import com.wayads.data.model.Receita
 import com.wayads.data.model.PontoGastronomico
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -25,8 +26,11 @@ interface ApiService {
     @GET("entretenimento")
     suspend fun getEntretenimento(): List<Anuncio>
 
-    @GET("v1/pontos-gastronomicos")
+    @GET("v1/gastronomia")
     suspend fun getPontosGastronomicos(): List<PontoGastronomico>
+
+    @GET("v1/gastronomia/categoria/{categoria}")
+    suspend fun getPontosGastronomicosPorCategoria(@Path("categoria") categoria: String): List<PontoGastronomico>
 
     @GET("kids")
     suspend fun getKids(): List<Anuncio>
@@ -51,4 +55,13 @@ interface ApiService {
 
     @GET("v1/turismo/{id}")
     suspend fun getPontoTuristico(@Path("id") id: Long): PontoTuristico
+
+    @GET("v1/gastronomia/{id}")
+    suspend fun getPontoGastronomico(@Path("id") id: Long): PontoGastronomico
+
+    @GET("v1/receitas")
+    suspend fun getReceitas(): List<Receita>
+
+    @GET("v1/receitas/{id}")
+    suspend fun getReceita(@Path("id") id: Long): Receita
 }
