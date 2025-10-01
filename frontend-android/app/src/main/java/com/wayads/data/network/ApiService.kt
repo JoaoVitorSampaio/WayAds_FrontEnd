@@ -1,9 +1,9 @@
 package com.wayads.data.network
 
+import com.wayads.app.data.model.kids.Kids
 import com.wayads.data.model.Anuncio
 import com.wayads.data.model.AnuncioEstatico
 import com.wayads.data.model.MovieResponse
-import com.wayads.data.model.Musica
 import com.wayads.data.model.MusicaResponse
 import com.wayads.data.model.Noticia
 import com.wayads.data.model.PontoGastronomico
@@ -29,6 +29,9 @@ interface ApiService {
 
     @GET("kids")
     suspend fun getKids(): List<Anuncio>
+
+    @GET("v1/kids/desenho/{nome}")
+    suspend fun getKidVideo(@Path("nome") nome: String): Kids
 
     @GET("turismo")
     suspend fun getTurismo(): List<Anuncio>

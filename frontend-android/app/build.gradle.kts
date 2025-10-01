@@ -78,6 +78,9 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.zxing.core)
 
+    // ExoPlayer
+    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
+
     // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -1,6 +1,7 @@
 package com.wayads.di
 
 import com.wayads.app.BuildConfig
+import com.wayads.app.data.repository.kids.KidsRepository
 import com.wayads.data.network.ApiService
 import com.wayads.data.repository.AnuncioEstaticoRepository
 import com.wayads.data.repository.MusicaRepository
@@ -54,5 +55,11 @@ object AppModule {
     @Singleton
     fun provideAnuncioEstaticoRepository(apiService: ApiService): AnuncioEstaticoRepository {
         return AnuncioEstaticoRepository(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKidsRepository(apiService: ApiService): KidsRepository {
+        return KidsRepository(apiService)
     }
 }
