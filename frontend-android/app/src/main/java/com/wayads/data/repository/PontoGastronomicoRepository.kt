@@ -10,4 +10,12 @@ class PontoGastronomicoRepository @Inject constructor(private val apiService: Ap
         return apiService.getPontosGastronomicos()
     }
 
+    suspend fun getPontosGastronomicosPorCategoria(categoria: String): List<PontoGastronomico> {
+        return apiService.getPontosGastronomicosPorCategoria(categoria)
+    }
+
+    suspend fun getPontoGastronomico(id: Long): PontoGastronomico {
+        return apiService.getPontoGastronomico(id)
+    }
+
 }
