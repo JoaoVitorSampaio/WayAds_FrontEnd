@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayads.app.BuildConfig
 
 import com.wayads.app.R
 import com.wayads.app.ui.kids.components.VideoPlayer
@@ -124,8 +125,7 @@ fun KidsScreen(
                     .fillMaxHeight()
             ) {
                 if (kidVideo != null) {
-                                        val baseUrl = "http://10.0.2.2:8081"
-                    VideoPlayer(videoUrl = baseUrl + kidVideo!!.videoUrl)
+                    VideoPlayer(videoUrl = BuildConfig.MEDIA_BASE_URL + kidVideo!!.videoUrl)
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.kids_placeholder),

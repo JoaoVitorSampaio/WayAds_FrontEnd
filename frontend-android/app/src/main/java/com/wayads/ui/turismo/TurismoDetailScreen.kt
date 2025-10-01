@@ -1,5 +1,6 @@
 package com.wayads.ui.turismo
 
+import com.wayads.app.BuildConfig
 import coil.compose.AsyncImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -40,7 +41,7 @@ fun TurismoDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AsyncImage(
-                    model = "http://10.0.2.2:8081" + ponto.urlFotoPrincipal,
+                    model = BuildConfig.MEDIA_BASE_URL + ponto.urlFotoPrincipal,
                     contentDescription = ponto.nome,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

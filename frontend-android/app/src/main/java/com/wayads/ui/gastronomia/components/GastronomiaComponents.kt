@@ -1,5 +1,6 @@
 package com.wayads.ui.gastronomia.components
 
+import com.wayads.app.BuildConfig
 import com.wayads.data.model.Receita
 import com.wayads.data.model.PontoGastronomico
 import coil.compose.AsyncImage
@@ -267,7 +268,7 @@ fun PontoGastronomicoCard(
             modifier = Modifier.height(120.dp)
         ) {
             AsyncImage(
-                model = "http://10.0.2.2:8081" + ponto.imagemUrl,
+                model = BuildConfig.MEDIA_BASE_URL + ponto.imagemUrl,
                 contentDescription = ponto.nome,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.width(120.dp)
