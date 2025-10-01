@@ -28,9 +28,11 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "API_BASE_URL", "\"https://wayads.com/api/\"")
+            buildConfigField("String", "MEDIA_BASE_URL", "\"https://wayads.com\"")
         }
         debug {
             buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.3:8081/api/\"")
+            buildConfigField("String", "MEDIA_BASE_URL", "\"http://192.168.0.3:8081\"")
         }
     }
 
