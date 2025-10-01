@@ -1,6 +1,7 @@
 package com.wayads.data.network
 
 import com.wayads.data.model.Anuncio
+import com.wayads.data.model.AnuncioEstatico
 import com.wayads.data.model.MovieResponse
 import com.wayads.data.model.Musica
 import com.wayads.data.model.MusicaResponse
@@ -37,4 +38,7 @@ interface ApiService {
 
     @GET("v1/musicas")
     suspend fun getMusicas(): MusicaResponse
+
+    @GET("v1/anuncios-estaticos")
+    suspend fun getAnuncioEstatico(): List<AnuncioEstatico>
 }

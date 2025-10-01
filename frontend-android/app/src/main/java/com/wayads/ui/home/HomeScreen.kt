@@ -4,20 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,19 +15,8 @@ import androidx.compose.material.icons.filled.BrightnessLow
 import androidx.compose.material.icons.filled.VolumeDown
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,19 +25,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import com.wayads.app.R
-
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.collectAsState
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.wayads.ui.home.viewmodel.HomeViewModel
+import coil.compose.SubcomposeAsyncImage
+import com.wayads.ui.components.ErrorScreen
+import com.wayads.ui.anuncioestatico.StaticAdBanner
 import com.wayads.ui.home.viewmodel.HomeUiState
+import com.wayads.ui.home.viewmodel.HomeViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Tela principal do aplicativo.
@@ -114,7 +88,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
         Row(
             modifier = Modifier.height(597.dp)
@@ -141,11 +117,22 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                                 state = pagerState,
                                 modifier = Modifier.fillMaxSize()
                             ) { page ->
-                                AsyncImage(
-                                    model = state.ads[page].imagemUrl.replace("localhost", "192.168.0.2"),
+                                SubcomposeAsyncImage(
+                                    model = state.ads[page].imagemUrl.replace("localhost", "192.168.0.3"),
                                     contentDescription = state.ads[page].titulo,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
+                                    loading = {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    },
+                                    error = {
+                                        ErrorScreen()
+                                    }
                                 )
                             }
                         } else {
@@ -153,7 +140,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
                         }
                     }
                     is HomeUiState.Error -> {
-                        Text(text = state.message, color = Color.Red)
+                        ErrorScreen()
                     }
                 }
             }
@@ -193,14 +180,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = hiltView
             }
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 }
 

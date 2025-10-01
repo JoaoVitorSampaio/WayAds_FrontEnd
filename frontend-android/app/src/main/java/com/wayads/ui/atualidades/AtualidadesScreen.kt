@@ -3,7 +3,6 @@ package com.wayads.ui.atualidades
 import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +29,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.wayads.app.R
+import com.wayads.ui.anuncioestatico.StaticAdBanner
+import com.wayads.ui.components.ErrorScreen
 import com.wayads.ui.atualidades.viewmodel.AtualidadesUiState
 import com.wayads.ui.atualidades.viewmodel.AtualidadesViewModel
 
@@ -111,7 +110,7 @@ fun AtualidadesScreen(navController: NavController, viewModel: AtualidadesViewMo
                                 ) {
                                     Column {
                                         AsyncImage(
-                                            model = noticia.fotoUrl.replace("localhost", "192.168.0.2"),
+                                            model = noticia.fotoUrl.replace("localhost", "192.168.0.3"),
                                             contentDescription = noticia.titulo,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier
@@ -129,7 +128,7 @@ fun AtualidadesScreen(navController: NavController, viewModel: AtualidadesViewMo
                         }
                     }
                     is AtualidadesUiState.Error -> {
-                        Text(text = state.message, color = Color.Red)
+                        ErrorScreen()
                     }
                 }
             }
@@ -170,14 +169,7 @@ fun AtualidadesScreen(navController: NavController, viewModel: AtualidadesViewMo
             }
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 }
 

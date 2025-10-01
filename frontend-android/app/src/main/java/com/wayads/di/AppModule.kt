@@ -2,6 +2,7 @@ package com.wayads.di
 
 import com.wayads.app.BuildConfig
 import com.wayads.data.network.ApiService
+import com.wayads.data.repository.AnuncioEstaticoRepository
 import com.wayads.data.repository.MusicaRepository
 import dagger.Module
 import dagger.Provides
@@ -47,5 +48,11 @@ object AppModule {
     @Singleton
     fun provideMusicaRepository(apiService: ApiService): MusicaRepository {
         return MusicaRepository(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnuncioEstaticoRepository(apiService: ApiService): AnuncioEstaticoRepository {
+        return AnuncioEstaticoRepository(apiService)
     }
 }

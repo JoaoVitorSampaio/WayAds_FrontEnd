@@ -35,8 +35,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.wayads.ui.anuncioestatico.StaticAdBanner
 import com.wayads.app.R
-import com.wayads.data.model.Movie
 import com.wayads.ui.entretenimento.viewmodel.EntretenimentoViewModel
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,7 +46,7 @@ import coil.compose.AsyncImage
 import com.wayads.ui.entretenimento.viewmodel.EsporteUiState
 
 import com.wayads.ui.entretenimento.viewmodel.MovieUiState
-import com.wayads.ui.entretenimento.MusicPlayerScreen
+import com.wayads.ui.components.ErrorScreen
 
 enum class EntretenimentoCategoria(val label: String) {
     FILMES("Filmes em cartaz"),
@@ -162,7 +162,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                                         ) {
                                             Column {
                                                 AsyncImage(
-                                                    model = noticia.fotoUrl.replace("localhost", "192.168.0.2"),
+                                                    model = noticia.fotoUrl.replace("localhost", "192.168.0.3"),
                                                     contentDescription = noticia.titulo,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
@@ -180,7 +180,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
                                 }
                             }
                             is EsporteUiState.Error -> {
-                                Text(text = state.message, color = Color.Red)
+                                ErrorScreen()
                             }
                         }
                     }
@@ -263,14 +263,7 @@ fun EntretenimentoScreen(navController: NavController, viewModel: Entretenimento
             }
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 }
 
@@ -317,7 +310,7 @@ fun ListaDeFilmes(navController: NavController, uiState: MovieUiState) {
             }
         }
         is MovieUiState.Error -> {
-            Text(text = uiState.message, color = Color.Red)
+            ErrorScreen()
         }
     }
 }

@@ -45,12 +45,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.wayads.ui.anuncioestatico.StaticAdBanner
 import com.wayads.app.R
 
 /**
@@ -193,14 +192,7 @@ fun KidsScreen(navController: NavController) {
             }
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 }
 

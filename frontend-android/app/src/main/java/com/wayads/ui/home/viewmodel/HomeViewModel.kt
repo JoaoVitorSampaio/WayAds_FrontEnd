@@ -3,7 +3,7 @@ package com.wayads.ui.home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayads.data.model.Anuncio
-import com.wayads.repository.AdRepository
+import com.wayads.data.repository.AdRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
