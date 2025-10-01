@@ -1,6 +1,7 @@
 package com.wayads.data.network
 
 import com.wayads.app.data.model.kids.Kids
+import com.wayads.app.data.model.turismo.PontoTuristico
 import com.wayads.data.model.Anuncio
 import com.wayads.data.model.AnuncioEstatico
 import com.wayads.data.model.MovieResponse
@@ -44,4 +45,10 @@ interface ApiService {
 
     @GET("v1/anuncios-estaticos")
     suspend fun getAnuncioEstatico(): List<AnuncioEstatico>
+
+    @GET("v1/turismo/categoria/{categoria}")
+    suspend fun getPontosTuristicosPorCategoria(@Path("categoria") categoria: String): List<PontoTuristico>
+
+    @GET("v1/turismo/{id}")
+    suspend fun getPontoTuristico(@Path("id") id: Long): PontoTuristico
 }

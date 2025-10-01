@@ -3,12 +3,8 @@ package com.wayads.ui.turismo
 import android.app.Activity
 import android.content.Context
 import android.media.AudioManager
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,28 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.wayads.ui.anuncioestatico.StaticAdBanner
-import com.wayads.app.R
 
-// ---------- MODELO ----------
-data class Praia(
-    val nome: String,
-    val imagem: Int,
-    val descricao: String
-)
-
-// ---------- TELA PRINCIPAL ----------
 @Composable
 fun TurismoScreen(navController: NavController) {
     val context = LocalContext.current
@@ -60,41 +42,28 @@ fun TurismoScreen(navController: NavController) {
     ) {
         Row(
             modifier = Modifier
-                .weight(1f)
+                .height(597.dp)
         ) {
-            // Conteúdo principal
+            // Main content area
             Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .width(938.dp)
                     .fillMaxHeight()
                     .background(Color.DarkGray),
                 contentAlignment = Alignment.Center
             ) {
                 when (selectedButton) {
-                    "Praias" -> {
-                        val innerNavController = rememberNavController()
-                        NavHost(
-                            navController = innerNavController,
-                            startDestination = "listaPraias",
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            composable("listaPraias") { ListaDePraias(innerNavController) }
-                            composable("detalhePraia/{praiaNome}") { backStackEntry ->
-                                val praiaNome = backStackEntry.arguments?.getString("praiaNome") ?: ""
-                                DetalhePraiaScreen(praiaNome, innerNavController)
-                            }
-                        }
-                    }
-                    "Histórico" -> FullImage(R.drawable.historico_bg, "Histórico")
-                    "Eventos" -> FullImage(R.drawable.eventos_bg, "Eventos")
-                    "Aventura" -> FullImage(R.drawable.aventura_bg, "Aventura")
+                    "Praias" -> CategoriaTurismoScreen(categoria = "PRAIAS")
+                    "Histórico" -> CategoriaTurismoScreen(categoria = "HISTORICO")
+                    "Eventos" -> CategoriaTurismoScreen(categoria = "EVENTOS")
+                    "Aventura" -> CategoriaTurismoScreen(categoria = "AVENTURA")
                 }
             }
 
-            // 👉 CORREÇÃO 1: A LARGURA DA COLUNA DO MENU FOI AJUSTADA
+            // Side menu
             Column(
                 modifier = Modifier
-                    .width(342.dp) // Ajustado para corresponder ao layout antigo
+                    .width(342.dp)
                     .fillMaxHeight()
                     .background(Color.Black),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -135,7 +104,7 @@ fun TurismoScreen(navController: NavController) {
                     )
                 }
 
-                // Ícones de controle
+                // Control icons
                 Row(
                     modifier = Modifier.padding(bottom = 14.dp),
                     horizontalArrangement = Arrangement.Center,
@@ -152,7 +121,7 @@ fun TurismoScreen(navController: NavController) {
             }
         }
 
-        // Banner inferior
+        // Bottom banner
         StaticAdBanner()
     }
 
@@ -192,107 +161,6 @@ fun TurismoScreen(navController: NavController) {
     }
 }
 
-// ---------- COMPONENTE IMAGEM CHEIA ----------
-@Composable
-fun FullImage(resId: Int, description: String) {
-    Image(
-        painter = painterResource(id = resId),
-        contentDescription = description,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
-    )
-}
-
-// ---------- LISTA DE PRAIAS ----------
-@Composable
-fun ListaDePraias(navController: NavController) {
-    val praias = listOf(
-        Praia("Praia do Bessa", R.drawable.bessa, "Praia tranquila com ótima faixa de areia."),
-        Praia("Praia de Camboinha", R.drawable.camboinha, "Famosa pelos passeios às piscinas naturais."),
-        Praia("Barra de Gramame", R.drawable.gramame, "Encontro do rio com o mar, muito procurada para passeios."),
-        Praia("Praia de Intermares", R.drawable.intermares, "Conhecida pelo surfe e pelos ninhos de tartarugas."),
-        Praia("Praia de Tambaú", R.drawable.tambau, "Cartão-postal de João Pessoa, cheia de vida e bares.")
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(praias) { praia ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clickable { navController.navigate("detalhePraia/${praia.nome}") },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxSize().padding(8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = praia.imagem),
-                        contentDescription = praia.nome,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(160.dp)
-                            .fillMaxHeight()
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(praia.nome, color = Color.White, fontSize = 20.sp)
-                }
-            }
-        }
-    }
-}
-
-// ---------- DETALHE DA PRAIA ----------
-@Composable
-fun DetalhePraiaScreen(praiaNome: String, navController: NavController) {
-    val praias = listOf(
-        Praia("Praia do Bessa", R.drawable.bessa, "Praia tranquila com ótima faixa de areia."),
-        Praia("Praia de Camboinha", R.drawable.camboinha, "Famosa pelos passeios às piscinas naturais."),
-        Praia("Barra de Gramame", R.drawable.gramame, "Encontro do rio com o mar, muito procurada para passeios."),
-        Praia("Praia de Intermares", R.drawable.intermares, "Conhecida pelo surfe e pelos ninhos de tartarugas."),
-        Praia("Praia de Tambaú", R.drawable.tambau, "Cartão-postal de João Pessoa, cheia de vida e bares.")
-    )
-
-    val praia = praias.find { it.nome == praiaNome }
-
-    praia?.let {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = it.imagem),
-                contentDescription = it.nome,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(it.nome, fontSize = 24.sp, color = Color.White)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(it.descricao, fontSize = 16.sp, color = Color.LightGray)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navController.popBackStack() }) {
-                Text("Voltar")
-            }
-        }
-    }
-}
-
-// ---------- MENU ITEM ----------
-// 👉 CORREÇÃO 2: ESTE COMPONENTE FOI TOTALMENTE AJUSTADO PARA FICAR IGUAL AO ANTIGO
 @Composable
 fun TurismoMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val backgroundColor = when {
@@ -308,35 +176,32 @@ fun TurismoMenuItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
         Button(
             onClick = onClick,
             modifier = Modifier
-                .width(301.dp)  // Largura do botão antigo
-                .height(94.dp), // Altura do botão antigo
+                .width(301.dp)
+                .height(94.dp),
             colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
             shape = RectangleShape
         ) {
-            // Box para forçar o alinhamento à esquerda
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
                     text,
-                    modifier = Modifier.padding(start = 16.dp), // Padding interno do texto
+                    modifier = Modifier.padding(start = 16.dp),
                     color = Color.White,
-                    fontSize = 24.sp // Tamanho da fonte antigo
+                    fontSize = 24.sp
                 )
             }
         }
-        // Barra lateral
         Box(
             modifier = Modifier
-                .width(10.dp)   // Largura da barra antiga
-                .height(94.dp)  // Altura da barra antiga
+                .width(10.dp)
+                .height(94.dp)
                 .background(traceColor)
         )
     }
 }
 
-// ---------- DIALOG ----------
 @Composable
 fun ControlDialog(
     onDismissRequest: () -> Unit,
