@@ -30,7 +30,7 @@ android {
             buildConfigField("String", "API_BASE_URL", "\"https://wayads.com/api/\"")
         }
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.3:8080/api/\"")
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.3:8081/api/\"")
         }
     }
 
@@ -77,6 +77,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.zxing.core)
+
+    // ExoPlayer
+    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
 
     // Tests
     testImplementation(libs.junit)

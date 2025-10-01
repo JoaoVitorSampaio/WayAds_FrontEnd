@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayads.data.model.Movie
 import com.wayads.data.model.Noticia
-import com.wayads.repository.MovieRepository
-import com.wayads.repository.NoticiaRepository
+import com.wayads.data.repository.MovieRepository
+import com.wayads.data.repository.NoticiaRepository
 import com.wayads.ui.entretenimento.EntretenimentoCategoria
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

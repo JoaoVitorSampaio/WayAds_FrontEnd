@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wayads.ui.anuncioestatico.StaticAdBanner
 import com.wayads.app.R
 
 // ---------- MODELO ----------
@@ -152,14 +153,7 @@ fun TurismoScreen(navController: NavController) {
         }
 
         // Banner inferior
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 
     // Dialogs

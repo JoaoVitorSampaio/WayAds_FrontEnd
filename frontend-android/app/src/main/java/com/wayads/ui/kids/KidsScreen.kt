@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,19 +46,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+
 import com.wayads.app.R
+import com.wayads.app.ui.kids.components.VideoPlayer
+import com.wayads.app.ui.kids.viewmodel.KidsViewModel
+import com.wayads.ui.anuncioestatico.StaticAdBanner
 
 /**
  * Tela principal da seção infantil.
  */
 @Composable
-fun KidsScreen(navController: NavController) {
+fun KidsScreen(
+    navController: NavController,
+    viewModel: KidsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val window = (LocalView.current.context as Activity).window
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -66,8 +73,8 @@ fun KidsScreen(navController: NavController) {
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showBrightnessDialog by remember { mutableStateOf(false) }
 
-    var currentImage by remember { mutableStateOf(R.drawable.kids_placeholder) }
     var selectedButton by remember { mutableStateOf("") }
+    val kidVideo by viewModel.kidVideo.collectAsState()
 
     if (showVolumeDialog) {
         ControlDialog(
@@ -104,19 +111,30 @@ fun KidsScreen(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.Black)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
         Row(
             modifier = Modifier.height(597.dp)
         ) {
-            Image(
-                painter = painterResource(id = currentImage),
-                contentDescription = "Banner principal",
-                contentScale = ContentScale.FillBounds,
+            Box(
                 modifier = Modifier
                     .width(938.dp)
                     .fillMaxHeight()
-            )
+            ) {
+                if (kidVideo != null) {
+                                        val baseUrl = "http://10.0.2.2:8081"
+                    VideoPlayer(videoUrl = baseUrl + kidVideo!!.videoUrl)
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.kids_placeholder),
+                        contentDescription = "Banner principal",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
@@ -134,45 +152,45 @@ fun KidsScreen(navController: NavController) {
                         text = "Voltar",
                         traceColor = Color.White,
                         isSelected = selectedButton == "Voltar",
-                        onClick = { 
+                        onClick = {
                             selectedButton = "Voltar"
-                            navController.popBackStack() 
+                            navController.popBackStack()
                         }
                     )
                     KidsMenuItem(
                         text = "Galinha Pintadinha",
                         traceColor = Color.White,
                         isSelected = selectedButton == "Galinha Pintadinha",
-                        onClick = { 
-                            currentImage = R.drawable.galinha_pintadinha
+                        onClick = {
                             selectedButton = "Galinha Pintadinha"
+                            viewModel.getKidVideo("galinha")
                         }
                     )
                     KidsMenuItem(
                         text = "Mundo Bita",
                         traceColor = Color.White,
                         isSelected = selectedButton == "Mundo Bita",
-                        onClick = { 
-                            currentImage = R.drawable.mundo_bida
+                        onClick = {
                             selectedButton = "Mundo Bita"
+                            viewModel.getKidVideo("bita")
                         }
                     )
                     KidsMenuItem(
                         text = "Patati e Patatá",
                         traceColor = Color.White,
                         isSelected = selectedButton == "Patati e Patatá",
-                        onClick = { 
-                            currentImage = R.drawable.patati_patata
+                        onClick = {
                             selectedButton = "Patati e Patatá"
+                            viewModel.getKidVideo("patati")
                         }
                     )
                     KidsMenuItem(
                         text = "Patrulha Canina",
                         traceColor = Color.White,
                         isSelected = selectedButton == "Patrulha Canina",
-                        onClick = { 
-                            currentImage = R.drawable.patrulha_canina
+                        onClick = {
                             selectedButton = "Patrulha Canina"
+                            viewModel.getKidVideo("patrulha")
                         }
                     )
                 }
@@ -182,25 +200,32 @@ fun KidsScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { showVolumeDialog = true }, modifier = Modifier.size(20.dp)) {
-                        Icon(Icons.Default.VolumeUp, contentDescription = "Controle de Volume", tint = Color.White)
+                    IconButton(
+                        onClick = { showVolumeDialog = true },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.VolumeUp,
+                            contentDescription = "Controle de Volume",
+                            tint = Color.White
+                        )
                     }
                     Spacer(modifier = Modifier.width(14.dp))
-                    IconButton(onClick = { showBrightnessDialog = true }, modifier = Modifier.size(20.dp)) {
-                        Icon(Icons.Default.WbSunny, contentDescription = "Controle de Brilho", tint = Color.White)
+                    IconButton(
+                        onClick = { showBrightnessDialog = true },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.WbSunny,
+                            contentDescription = "Controle de Brilho",
+                            tint = Color.White
+                        )
                     }
                 }
             }
         }
 
-        Image(
-            painter = painterResource(id = R.drawable.anuncio_generico),
-            contentDescription = "Banner inferior",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(177.dp)
-        )
+        StaticAdBanner()
     }
 }
 
@@ -272,11 +297,25 @@ fun ControlDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onDecrease, modifier = Modifier.size(64.dp)) {
-                        Icon(decreaseIcon, contentDescription = "Diminuir", modifier = Modifier.fillMaxSize())
+                    IconButton(
+                        onClick = onDecrease,
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            decreaseIcon,
+                            contentDescription = "Diminuir",
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
-                    IconButton(onClick = onIncrease, modifier = Modifier.size(64.dp)) {
-                        Icon(increaseIcon, contentDescription = "Aumentar", modifier = Modifier.fillMaxSize())
+                    IconButton(
+                        onClick = onIncrease,
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            increaseIcon,
+                            contentDescription = "Aumentar",
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }

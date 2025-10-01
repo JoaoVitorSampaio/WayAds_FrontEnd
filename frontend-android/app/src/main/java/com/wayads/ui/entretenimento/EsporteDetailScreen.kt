@@ -63,7 +63,7 @@ fun EsporteDetailScreen(
                     ) {
                         // Imagem menor à esquerda
                         AsyncImage(
-                            model = noticia.fotoUrl.replace("localhost", "192.168.0.2"),
+                            model = noticia.fotoUrl.replace("localhost", "192.168.0.3"),
                             contentDescription = noticia.titulo,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier

@@ -1,4 +1,4 @@
-package com.wayads.repository
+package com.wayads.data.repository
 
 import com.wayads.data.model.Anuncio
 import com.wayads.data.network.ApiService
